@@ -1,0 +1,12 @@
+Alice
+Bob
+Carol
+David
+Emma
+Frank
+Grace
+Henry
+First Prize
+Second Prize
+Third Prize
+Lucky Prize
