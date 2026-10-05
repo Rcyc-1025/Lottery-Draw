@@ -33,8 +33,14 @@ When you need to run a raffle / lucky draw in an offline environment (office par
 - **Manual entry** — add entries one per line via a popup dialog, with auto deduplication
 - **Draw with rolling animation** — configurable number of winners per draw (1–100), with a ~2 second scrolling animation
 - **Elimination mode** — winners are removed from the pool and cannot be drawn again; can be toggled off to allow repeat winners
-- **Record history** — every draw (time / round / result) is shown in a table and persisted locally, restored on restart
-- **Export records** — one-click export to CSV (utf-8-sig, opens correctly in Excel)
+- **List Manager** — view every entry with a clear status (in pool / eliminated / has draw record / eliminated with record), filter by status, and use **checkbox multi-select** to batch-delete or batch-set the pool status
+- **Record notes** — double-click a record row (or use the *Edit Note* button) to attach a note to any draw
+- **Record history** — every draw (time / round / result / note) is shown in a table and persisted locally, restored on restart
+- **Export records** — one-click export to CSV with a note column (utf-8-sig, opens correctly in Excel)
+- **Export remaining entries** — export the current non-eliminated pool to a txt file (one entry per line, ready to be re-imported)
+- **Separate export locations** — independently configure the default save folder for draw records and for remaining entries
+- **Trilingual UI** — switch instantly between 简体中文 / English (UK) / English (US); the choice is remembered
+- **Auto persistence** — the name list and the current pool are saved automatically, so you never need to re-import after restarting
 
 ### 3. Installation
 
@@ -60,10 +66,12 @@ That's it. No `pip install` required.
 python lottery.py
 ```
 
-1. Click **导入名单(txt)** and select a txt file with one entry per line (see `names_example.txt`), **or** click **手动添加** to type entries directly.
-2. Set **每次抽取** (draw count) and toggle **淘汰模式** (elimination mode) as needed.
-3. Click **开始抽奖** to draw. The display scrolls for ~2 seconds then shows the winner(s).
-4. View history in the records table; click **导出记录** to export CSV.
+1. Click **Import List (txt)** and select a txt file with one entry per line (see `names_example.txt`), **or** click **Add Manually** to type entries directly. The list is remembered after restart.
+2. Set the number of winners per draw and toggle **Elimination mode** as needed.
+3. Click **Start Draw** (UK) / **Start Drawing** (US) to draw. The display scrolls for ~2 seconds then shows the winner(s).
+4. Double-click a record row (or click **Edit Note**) to attach a note; open **Manage List** to review statuses or batch-manage entries.
+5. Click **Export Records** to export the history as CSV, **Export Remaining Entries** to export the remaining pool as txt, or **Export Settings** to configure separate save folders.
+6. Switch the interface language anytime from the language dropdown at the top.
 
 ### 5. Input / Output Example
 
@@ -81,30 +89,37 @@ Emma
 
 | Step | Action |
 |---|---|
-| 1 | Import `names_example.txt` → display shows "已导入 5 项" |
+| 1 | Import `names_example.txt` → display shows "Imported 5 entries" |
 | 2 | Set draw count = 1, elimination mode ON |
-| 3 | Click **开始抽奖** → rolling animation → result shown in red |
+| 3 | Click **Start Draw** → rolling animation → result shown in red |
 
 #### Output
 
-After 3 draws with elimination mode ON:
+After 3 draws with elimination mode ON (a note added to round 2):
 
-| Time | Round | Result |
-|---|---|---|
-| 2026-09-29 10:00:01 | 1 | Carol |
-| 2026-09-29 10:00:08 | 2 | Alice |
-| 2026-09-29 10:00:15 | 3 | David |
+| Time | Round | Result | Note |
+|---|---|---|---|
+| 2026-09-29 10:00:01 | 1 | Carol | |
+| 2026-09-29 10:00:08 | 2 | Alice | First prize |
+| 2026-09-29 10:00:15 | 3 | David | |
 
-Pool remaining: Bob, Emma (2).
+Pool remaining: Bob, Emma (2). Exporting the remaining entries produces:
+
+```text
+Bob
+Emma
+```
 
 #### Exported CSV
 
 ```csv
-时间,轮次,中奖结果
-2026-09-29 10:00:01,1,Carol
-2026-09-29 10:00:08,2,Alice
-2026-09-29 10:00:15,3,David
+Time,Round,Result,Note
+2026-09-29 10:00:01,1,Carol,
+2026-09-29 10:00:08,2,Alice,First prize
+2026-09-29 10:00:15,3,David,
 ```
+
+> Note: the CSV header follows the UI language in use.
 
 ### 6. Project Structure
 
@@ -119,17 +134,20 @@ Lottery-Draw/
 
 Run-time generated files (not tracked by git):
 
-- `lottery_records.csv` — local draw history
+- `lottery_records.csv` — local draw history (including notes)
+- `lottery_list.json` — saved name list and current pool
+- `lottery_config.json` — language preference and custom export folders
 
 ### 7. Tech Stack
 
 - **Language**: Python 3
 - **GUI**: Tkinter (standard library)
-- **Persistence**: CSV (utf-8-sig)
+- **Persistence**: CSV for draw history (utf-8-sig); JSON for the name list, pool and settings
 
 ### 8. Notes
 
-- Draw history is stored locally in `lottery_records.csv` next to the script. This file is not uploaded to the repository.
+- The name list, current pool, draw history and settings are stored locally next to the script; these files are excluded from git via `.gitignore`.
+- Eliminated entries are kept out of the pool and are never drawn; *Export Remaining Entries* only contains entries still in the pool.
 - The random selection uses Python's `random` module (Mersenne Twister), which is **not** cryptographically secure. Not recommended for high-stakes gambling.
 
 ### License
@@ -164,8 +182,14 @@ This project is licensed under the **Mozilla Public License 2.0** — see the [L
 - **手动添加**：通过弹窗逐行输入抽奖项，自动去重
 - **滚动动画抽奖**：可设置每次抽取数量（1–100），带约 2 秒滚动动画
 - **淘汰模式**：中奖者自动移出奖池不重复中奖；取消勾选则允许重复中奖
-- **抽奖记录**：每次抽奖（时间 / 轮次 / 结果）实时展示，并自动保存到本地文件，重启后自动恢复
-- **导出记录**：一键导出 CSV（utf-8-sig 编码，Excel 打开不乱码）
+- **名单管理**：查看每项状态（在奖池中 / 已淘汰 / 有该选项记录 / 已淘汰（有记录）），可按状态筛选，并通过**勾选式多选**批量删除或批量修改奖池状态
+- **抽奖备注**：双击记录行（或点「编辑备注」）即可为任意一轮抽奖添加备注
+- **抽奖记录**：每次抽奖（时间 / 轮次 / 中奖结果 / 备注）实时展示，并自动保存到本地文件，重启后自动恢复
+- **导出记录**：一键导出带备注列的 CSV（utf-8-sig 编码，Excel 打开不乱码）
+- **导出剩余选项**：把当前未淘汰的奖池导出为 txt（一行一个，可直接再次导入）
+- **导出位置分别设置**：抽奖记录与剩余选项可分别配置默认保存文件夹
+- **三语言界面**：可在 简体中文 / English (UK) / English (US) 间即时切换，并记住选择
+- **自动持久化**：名单和当前奖池自动保存，重启程序无需重新导入
 
 ### 3. 安装方法
 
@@ -191,10 +215,12 @@ cd Lottery-Draw
 python lottery.py
 ```
 
-1. 点击 **导入名单(txt)** 选择 txt 文件（一行一个选项，参考 `names_example.txt`），**或** 点击 **手动添加** 直接输入。
+1. 点击 **导入名单(txt)** 选择 txt 文件（一行一个选项，参考 `names_example.txt`），**或**点击 **手动添加** 直接输入；名单重启后仍会保留。
 2. 设置 **每次抽取** 数量，按需勾选 **淘汰模式**。
 3. 点击 **开始抽奖**，显示区滚动约 2 秒后揭晓中奖者。
-4. 在下方记录表格查看历史，点击 **导出记录** 导出 CSV。
+4. 双击记录行可添加备注；点击 **名单管理** 查看状态或批量管理选项。
+5. 点击 **导出记录** 导出历史 CSV、**导出剩余选项** 导出剩余奖池 txt，或在 **导出设置** 中分别配置保存文件夹。
+6. 顶部语言下拉框可随时切换界面语言。
 
 ### 5. 输入输出示例
 
@@ -218,24 +244,31 @@ Emma
 
 #### 输出
 
-开启淘汰模式抽奖 3 次后：
+开启淘汰模式抽奖 3 次后（第 2 轮添加了备注）：
 
-| 时间 | 轮次 | 中奖结果 |
-|---|---|---|
-| 2026-09-29 10:00:01 | 1 | Carol |
-| 2026-09-29 10:00:08 | 2 | Alice |
-| 2026-09-29 10:00:15 | 3 | David |
+| 时间 | 轮次 | 中奖结果 | 备注 |
+|---|---|---|---|
+| 2026-09-29 10:00:01 | 1 | Carol | |
+| 2026-09-29 10:00:08 | 2 | Alice | 一等奖 |
+| 2026-09-29 10:00:15 | 3 | David | |
 
-奖池剩余：Bob, Emma（2 项）。
+奖池剩余：Bob、Emma（2 项）。导出剩余选项得到：
+
+```text
+Bob
+Emma
+```
 
 #### 导出的 CSV
 
 ```csv
-时间,轮次,中奖结果
-2026-09-29 10:00:01,1,Carol
-2026-09-29 10:00:08,2,Alice
-2026-09-29 10:00:15,3,David
+时间,轮次,中奖结果,备注
+2026-09-29 10:00:01,1,Carol,
+2026-09-29 10:00:08,2,Alice,一等奖
+2026-09-29 10:00:15,3,David,
 ```
+
+> 说明：CSV 表头会随界面语言变化。
 
 ### 6. 项目结构
 
@@ -250,17 +283,20 @@ Lottery-Draw/
 
 运行时自动生成（不纳入版本控制）：
 
-- `lottery_records.csv` — 本地抽奖记录
+- `lottery_records.csv` — 本地抽奖记录（含备注）
+- `lottery_list.json` — 保存的名单与当前奖池
+- `lottery_config.json` — 语言偏好与自定义导出文件夹
 
 ### 7. 技术栈
 
 - **语言**：Python 3
 - **GUI**：Tkinter（标准库）
-- **持久化**：CSV（utf-8-sig）
+- **持久化**：抽奖记录用 CSV（utf-8-sig）；名单、奖池与设置用 JSON
 
 ### 8. 注意事项
 
-- 抽奖记录保存在脚本同目录的 `lottery_records.csv`，不会上传到仓库。
+- 名单、当前奖池、抽奖记录和设置均保存在脚本同目录，这些文件已通过 `.gitignore` 排除，不会上传。
+- 已淘汰选项不在奖池中，永远不会被抽中；「导出剩余选项」只包含仍在奖池中的项。
 - 随机抽取使用 Python `random` 模块（Mersenne Twister），**非**密码学安全，不建议用于高赌注博彩。
 
 ### 许可证

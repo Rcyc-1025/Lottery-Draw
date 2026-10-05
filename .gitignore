@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 lottery_records.csv
 lottery_config.json
+lottery_list.json
