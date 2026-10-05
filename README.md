@@ -9,7 +9,7 @@ No third-party dependencies — runs with the standard library only.
 
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-blue.svg)](https://opensource.org/licenses/MPL-2.0)
 [![Python](https://img.shields.io/badge/Python-3.x-yellow.svg)](https://www.python.org/)
-[![Release](https://img.shields.io/badge/release-v1.0-green.svg)](https://github.com/Rcyc-1025/Lottery-Draw/releases)
+[![Release](https://img.shields.io/badge/release-v1.1.0-green.svg)](https://github.com/Rcyc-1025/Lottery-Draw/releases)
 
 </div>
 
